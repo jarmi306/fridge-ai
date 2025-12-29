@@ -70,16 +70,32 @@ export default function FridgeApp() {
           </button>
         </div>
 
-        {/* Result Section */}
+{/* Result Section */}
         {recipe && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 prose prose-slate animate-in fade-in slide-in-from-bottom-4 duration-500">
-             {/* Using a simple pre-wrap for the AI markdown text */}
-            <div className="whitespace-pre-wrap leading-relaxed text-slate-700">
-              {recipe}
+          <div className="mt-12 p-8 bg-white border border-slate-100 shadow-sm rounded-lg animate-in fade-in duration-700">
+            <div className="max-w-prose mx-auto">
+              <div className="whitespace-pre-line text-slate-800 leading-8 font-serif text-lg tracking-wide">
+                {recipe.split('\n').map((line, index) => {
+                  // We treat the first line as the Main Title
+                  const isTitle = index === 0;
+                  // We look for these keywords to style them as section headers
+                  const isHeader = ["INGREDIENTS", "INSTRUCTIONS"].some(h => line.includes(h));
+                  
+                  // If the line is empty, don't render an extra paragraph
+                  if (!line.trim()) return <div key={index} className="h-2" />;
+
+                  return (
+                    <p key={index} 
+                       className={`
+                         ${isTitle ? "text-3xl font-sans font-black mb-4 text-slate-900 border-b-2 border-orange-100 pb-2 leading-tight" : ""}
+                         ${isHeader ? "font-sans font-bold uppercase tracking-[0.2em] text-orange-600 mt-10 mb-4 text-xs" : "mb-2"}
+                         ${!isTitle && !isHeader ? "opacity-90" : ""}
+                       `}>
+                      {line}
+                    </p>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
-      </div>
-    </main>
-  );
-}

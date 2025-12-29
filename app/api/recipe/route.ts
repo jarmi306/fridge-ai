@@ -19,21 +19,26 @@ export async function POST(request: Request) {
       model: "gemini-2.5-flash" 
     });
 
-    const prompt = `You are a minimalist gourmet chef. 
-I have: ${ingredients}. 
+    const prompt = `You are an elite Executive Chef known for complex flavor layering. 
+Input Ingredients: ${ingredients}.
 
-Provide a simple, elegant recipe. 
-CRITICAL: Do not use any Markdown symbols like #, *, or -.
-Use plain text only. 
+Your goal: Create a high-end, restaurant-quality dish using these items PLUS common pantry staples (fats, dry spices, aromatics, condiments). 
 
-Structure it exactly like this:
+CRITICAL RULES:
+1. Do not use Markdown symbols (*, #, **).
+2. Think about flavor balance: contrast textures (crunch vs creamy) and flavors (acid vs fat).
+3. Use professional culinary techniques (e.g., deglazing, emulsifying, tempering).
+4. If the ingredients are simple, elevate them with specific spice pairings (e.g., "toasted cumin," "smoked paprika," "zest of lemon").
+
+Structure:
 RECIPE TITLE
-(Two line breaks)
+(A brief 1-sentence description of the flavor profile, e.g., "A smoky, acid-forward take on...")
+
 INGREDIENTS
-(List ingredients here, one per line)
-(Two line breaks)
+(Include the user's items + specific spices and pantry staples)
+
 INSTRUCTIONS
-(List steps here, numbered 1, 2, 3...)`;
+(Detailed, technique-heavy steps)`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();

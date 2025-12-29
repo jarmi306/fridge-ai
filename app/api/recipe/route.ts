@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const { ingredients } = await request.json();
     const apiKey = process.env.GEMINI_API_KEY;
-
+const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: "API Key missing" }, { status: 500 });
     }
@@ -41,11 +41,19 @@ INSTRUCTIONS
 (Detailed, technique-heavy steps)`;
 
     const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const recipeText = result.response.text();
+    const recipeTitle = recipeText.split('\n')[0];
 
-    return NextResponse.json({ text });
+    // 2. Fetch a realistic image from Unsplash
+    const imageRes = await fetch(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(recipeTitle + " food")}&per_page=1&orientation=squarish`,
+      { headers: { Authorization: `Client-ID ${unsplashKey}` } }
+    );
+    const imageData = await imageRes.json();
+    const imageUrl = imageData.results[0]?.urls?.regular || "https://images.unsplash.com/photo-1495195129352-aeb325a55b65";
+
+    return NextResponse.json({ text: recipeText, image: imageUrl });
   } catch (err: any) {
-    console.error("Gemini API Error:", err);
-    return NextResponse.json({ error: "Model Error: " + err.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

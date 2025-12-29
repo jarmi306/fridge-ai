@@ -2,6 +2,7 @@
 import { useState } from "react";
 
 export default function FridgeApp() {
+  const [image, setImage] = useState("");
   const [input, setInput] = useState("");
   const [recipe, setRecipe] = useState("");
   const [loading, setLoading] = useState(false);
@@ -9,22 +10,23 @@ export default function FridgeApp() {
   const getRecipe = async () => {
     if (!input) return;
     setLoading(true);
-    setRecipe(""); 
-    
+    setRecipe("");
+    setImage(""); // Clear previous image
+
     try {
-      const res = await fetch("/api/recipe", { 
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ ingredients: input }),
-});
+      const res = await fetch("/api/recipe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ingredients: input }),
+      });
 
       const data = await res.json();
 
       if (!res.ok) {
-        // This will show you exactly what went wrong on the screen
         setRecipe(`⚠️ Error: ${data.error || 'Something went wrong'}`);
       } else {
         setRecipe(data.text);
+        setImage(data.image); // Set the Unsplash image URL
       }
     } catch (err) {
       setRecipe("⚠️ Connection failed. Is the API route correct?");
@@ -49,13 +51,13 @@ export default function FridgeApp() {
         {/* Input Card */}
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 border border-slate-100 mb-8">
           <label className="block text-sm font-semibold uppercase tracking-wider text-slate-400 mb-2">Ingredients</label>
-          <textarea 
+          <textarea
             className="w-full p-4 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-orange-500 transition-all min-h-[120px] text-lg"
             placeholder="e.g. 2 eggs, wilted spinach, leftover rice..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
-          <button 
+          <button
             onClick={getRecipe}
             disabled={loading || !input}
             className={`w-full mt-4 py-4 rounded-xl font-bold text-white transition-all shadow-lg shadow-orange-200 ${
@@ -70,22 +72,31 @@ export default function FridgeApp() {
           </button>
         </div>
 
-{/* Result Section */}
+        {/* Result Section */}
         {recipe && (
-          <div className="mt-12 p-8 bg-white border border-slate-100 shadow-sm rounded-lg animate-in fade-in duration-700">
-            <div className="max-w-prose mx-auto">
+          <div className="mt-12 overflow-hidden bg-white border border-slate-100 shadow-sm rounded-2xl animate-in fade-in duration-700">
+            {/* Realistic Food Image */}
+            {image && (
+              <div className="w-full h-64 md:h-96 relative">
+                <img
+                  src={image}
+                  alt="Gourmet Dish"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              </div>
+            )}
+
+            <div className="p-8 max-w-prose mx-auto">
               <div className="whitespace-pre-line text-slate-800 leading-8 font-serif text-lg tracking-wide">
                 {recipe.split('\n').map((line, index) => {
-                  // We treat the first line as the Main Title
                   const isTitle = index === 0;
-                  // We look for these keywords to style them as section headers
                   const isHeader = ["INGREDIENTS", "INSTRUCTIONS"].some(h => line.includes(h));
-                  
-                  // If the line is empty, don't render an extra paragraph
+
                   if (!line.trim()) return <div key={index} className="h-2" />;
 
                   return (
-                    <p key={index} 
+                    <p key={index}
                        className={`
                          ${isTitle ? "text-3xl font-sans font-black mb-4 text-slate-900 border-b-2 border-orange-100 pb-2 leading-tight" : ""}
                          ${isHeader ? "font-sans font-bold uppercase tracking-[0.2em] text-orange-600 mt-10 mb-4 text-xs" : "mb-2"}
@@ -99,7 +110,7 @@ export default function FridgeApp() {
             </div>
           </div>
         )}
-</div> {/* This closes the max-w-2xl mx-auto div */}
-    </main> // This closes the main tag
+      </div>
+    </main>
   );
 }

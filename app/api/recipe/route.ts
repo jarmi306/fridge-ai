@@ -19,7 +19,21 @@ export async function POST(request: Request) {
       model: "gemini-2.5-flash" 
     });
 
-    const prompt = `You are a professional chef. Create a detailed recipe using: ${ingredients}.`;
+    const prompt = `You are a minimalist gourmet chef. 
+I have: ${ingredients}. 
+
+Provide a simple, elegant recipe. 
+CRITICAL: Do not use any Markdown symbols like #, *, or -.
+Use plain text only. 
+
+Structure it exactly like this:
+RECIPE TITLE
+(Two line breaks)
+INGREDIENTS
+(List ingredients here, one per line)
+(Two line breaks)
+INSTRUCTIONS
+(List steps here, numbered 1, 2, 3...)`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();

@@ -99,3 +99,7 @@ export default function FridgeApp() {
             </div>
           </div>
         )}
+</div> {/* This closes the max-w-2xl mx-auto div */}
+    </main> // This closes the main tag
+  );
+}

@@ -9,18 +9,29 @@ export default function FridgeApp() {
   const getRecipe = async () => {
     if (!input) return;
     setLoading(true);
+    setRecipe(""); 
+    
     try {
-      const res = await fetch("/api/recipe", {
+      const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ingredients: input }),
       });
+
       const data = await res.json();
-      setRecipe(data.text);
+
+      if (!res.ok) {
+        // This will show you exactly what went wrong on the screen
+        setRecipe(`⚠️ Error: ${data.error || 'Something went wrong'}`);
+      } else {
+        setRecipe(data.text);
+      }
     } catch (err) {
-      setRecipe("Error: Could not connect to the chef.");
+      setRecipe("⚠️ Connection failed. Is the API route correct?");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

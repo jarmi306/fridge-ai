@@ -1,3 +1,10 @@
+// Add this line at the very top of route.ts
+export const runtime = 'nodejs'; 
+export const dynamic = 'force-dynamic';
+
+import { GoogleGenerativeAI } from "@google/generative-ai";
+// ... rest of your code
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 

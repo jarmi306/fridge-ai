@@ -1,11 +1,31 @@
-const prompt = `You are a professional Michelin-star chef. 
-I have these ingredients: ${ingredients}. 
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { NextResponse } from "next/server";
 
-Provide a response with this exact structure:
-1. A Creative Recipe Title (Big and Bold)
-2. Preparation Time & Difficulty
-3. A Bulleted list of ALL ingredients needed (including staples like oil/salt)
-4. Numbered step-by-step instructions (detailed and professional)
-5. A "Chef's Tip" at the end for extra flavor.
+// 1. Initialize the AI with your key
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-Format using Markdown for clarity.`;
+// 2. You MUST export an async function named POST
+export async function POST(req: Request) {
+  try {
+    // 3. Parse the incoming JSON body
+    const body = await req.json();
+    const { ingredients } = body;
+
+    if (!ingredients) {
+      return NextResponse.json({ error: "No ingredients provided" }, { status: 400 });
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    const prompt = `You are a professional chef. I have: ${ingredients}. Give me a detailed recipe.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    return NextResponse.json({ text });
+  } catch (error: any) {
+    console.error("Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}

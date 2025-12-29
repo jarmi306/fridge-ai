@@ -10,7 +10,7 @@ export default function FridgeApp() {
     if (!input) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/generate", {
+      const res = await fetch("/api/recipe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ingredients: input }),
